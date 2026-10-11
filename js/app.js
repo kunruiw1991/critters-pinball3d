@@ -779,8 +779,9 @@ const camTrauma = {
   initialized: false
 };
 
-function addTrauma(amt) {
-  camTrauma.trauma = Math.min(1.0, camTrauma.trauma + amt);
+function addTrauma(amt, allowSubtle = false) {
+  if (!allowSubtle) return;
+  camTrauma.trauma = Math.min(0.18, camTrauma.trauma + amt * 0.25);
   camTrauma.shake = camTrauma.trauma;
 }
 
@@ -2879,38 +2880,26 @@ function updateCameraFraming(dt, mainBallX = 0, mainBallZ = 2, timeSec = 0) {
     tableCenterX = 0.85;
   }
 
-  const targetFov = baseFov + camTrauma.fovKick + (rainbowFeverTimer > 0 ? 2.0 : 0);
-  if (dt <= 0) {
-    camera.fov = targetFov;
-  } else {
-    camera.fov += (targetFov - camera.fov) * Math.min(1, dt * 8);
-  }
+  // Fixed rock-steady FOV and cabinet viewpoint — zero ball-chasing camera sway, zero FOV pumping, zero rotational shake!
+  const targetFov = baseFov;
+  camera.fov = targetFov;
   camera.aspect = aspect;
   camera.updateProjectionMatrix();
 
-  const followScale = aspect < 0.8 ? 0.03 : 0.06;
-  const targetBaseX = -tableCenterX + mainBallX * followScale;
-  const targetBaseY = camY + (camTrauma.zoomKick || 0);
-  const targetBaseZ = camZ + mainBallZ * 0.03;
+  const targetBaseX = -tableCenterX;
+  const targetBaseY = camY;
+  const targetBaseZ = camZ;
 
-  if (dt <= 0 || !camTrauma.initialized) {
-    camTrauma.baseX = targetBaseX;
-    camTrauma.baseY = targetBaseY;
-    camTrauma.baseZ = targetBaseZ;
-    camTrauma.initialized = true;
-  } else {
-    const alpha = Math.min(1, dt * 8);
-    camTrauma.baseX += (targetBaseX - camTrauma.baseX) * alpha;
-    camTrauma.baseY += (targetBaseY - camTrauma.baseY) * alpha;
-    camTrauma.baseZ += (targetBaseZ - camTrauma.baseZ) * alpha;
-  }
+  camTrauma.baseX = targetBaseX;
+  camTrauma.baseY = targetBaseY;
+  camTrauma.baseZ = targetBaseZ;
+  camTrauma.initialized = true;
 
-  // Trauma shake applied AFTER smoothing to BOTH camera position and look target, plus post-lookAt angular shake!
   const s = camTrauma.trauma * camTrauma.trauma;
   const tNoise = timeSec || performance.now() * 0.001;
-  const offsetX = sampleShakeNoise(tNoise, 1.1) * 0.45 * s;
-  const offsetY = sampleShakeNoise(tNoise, 2.7) * 0.45 * s;
-  const offsetZ = sampleShakeNoise(tNoise, 4.3) * 0.45 * s;
+  const offsetX = sampleShakeNoise(tNoise, 1.1) * 0.04 * s;
+  const offsetY = sampleShakeNoise(tNoise, 2.7) * 0.04 * s;
+  const offsetZ = sampleShakeNoise(tNoise, 4.3) * 0.03 * s;
 
   camera.position.set(
     camTrauma.baseX + offsetX,
@@ -2918,17 +2907,10 @@ function updateCameraFraming(dt, mainBallX = 0, mainBallZ = 2, timeSec = 0) {
     camTrauma.baseZ + offsetZ
   );
 
-  const lookTargetX = -tableCenterX + mainBallX * (followScale * 0.5) + offsetX;
-  const lookTargetY = 0.2 + offsetY;
-  const lookTargetZ = lookZ + mainBallZ * 0.02 + offsetZ;
+  const lookTargetX = -tableCenterX;
+  const lookTargetY = 0.2;
+  const lookTargetZ = lookZ;
   camera.lookAt(lookTargetX, lookTargetY, lookTargetZ);
-
-  const maxAngle = 0.035;
-  if (s > 0.00001 || Math.abs(camTrauma.rollKick) > 0.0001) {
-    camera.rotateX(maxAngle * s * sampleShakeNoise(tNoise, 5.9));
-    camera.rotateY(maxAngle * s * sampleShakeNoise(tNoise, 7.3));
-    camera.rotateZ(maxAngle * s * sampleShakeNoise(tNoise, 9.1) + camTrauma.rollKick);
-  }
 }
 
 // Physics Step for a Pinball (Player or Rival) on the 3D Tilted Playfield
@@ -2940,8 +2922,8 @@ function stepSingleBallPhysics(ball, isPlayer, dt, timeSec) {
     ball.drainWaitTimer = Math.max(0, ball.drainWaitTimer - dt);
     ball.meshObj.root.position.set(ball.x, ball.y, ball.z);
     if (ball.drainWaitTimer === 0) {
-      ball.vz = -31 - Math.random() * 3;
-      ball.vx = (-0.8 - ball.x) * 1.8 + (Math.random() - 0.5) * 9;
+      ball.vz = -26 - Math.random() * 2.5;
+      ball.vx = (-0.8 - ball.x) * 1.5 + (Math.random() - 0.5) * 6;
       if (isPlayer) {
         comboCount = 0;
         spawnShockwave3D(ball.x, 0.5, 14.1, 0x00e5ff, 2.8, true);
@@ -2950,8 +2932,8 @@ function stepSingleBallPhysics(ball, isPlayer, dt, timeSec) {
     return;
   }
 
-  // Down-slope pinball gravity (+z is toward bottom flippers)
-  const slopeGravity = 22.0;
+  // Smooth, readable down-slope pinball gravity (+z is toward bottom flippers)
+  const slopeGravity = 16.5;
   ball.vz += slopeGravity * dt;
 
   // Damped Swirling Magnet Vortex around upper bumper cluster (-0.8, -8.5) (cancels slope gravity so ball orbits the bumpers!)
@@ -2966,9 +2948,9 @@ function stepSingleBallPhysics(ball, isPlayer, dt, timeSec) {
     const invDist = distV > 0.001 ? 1.0 / distV : 0;
     const perpX = -dzV * invDist;
     const perpZ = dxV * invDist;
-    const kR = 6.0;
-    const kT = 9.0;
-    const cD = 1.8;
+    const kR = 5.5;
+    const kT = 7.5;
+    const cD = 2.0;
     ball.vx += (kR * rx + kT * perpX - cD * ball.vx) * dt;
     ball.vz += (kR * rz + kT * perpZ - cD * ball.vz) * dt;
   }
@@ -2983,8 +2965,8 @@ function stepSingleBallPhysics(ball, isPlayer, dt, timeSec) {
     }
   }
 
-  // High speed cap (>= 54 u/s) so plunger (-46..-49) and flipper tip (30..46) impulses preserve their full dynamic range!
-  const maxSpeed = isPlayer && rainbowFeverTimer > 0 ? 58 : 54;
+  // Calm, trackable speed cap so the pinball is easy to follow visually without frantic ricochets
+  const maxSpeed = isPlayer && rainbowFeverTimer > 0 ? 42 : 38;
   const curSpeed = Math.hypot(ball.vx, ball.vz);
   if (curSpeed > maxSpeed) {
     const scale = maxSpeed / curSpeed;
@@ -3150,35 +3132,30 @@ function stepSingleBallPhysics(ball, isPlayer, dt, timeSec) {
       ball.x = bmp.x + nx * (minDist + 0.06);
       ball.z = bmp.z + nz * (minDist + 0.06);
 
-      // v' = v - (1 + e)(v·n)n + n·kick with e = 0.55 and kick = 16 + 0.25*|v·n| (capped), plus vy pop = 3.5!
       const vn = Math.min(0, ball.vx * nx + ball.vz * nz);
-      const eBumper = 0.55;
-      const baseKick = isPlayer ? 16.0 : 13.5;
-      const kick = Math.min(24.0, baseKick + 0.25 * Math.abs(vn));
+      const eBumper = 0.48;
+      const baseKick = isPlayer ? 12.0 : 10.5;
+      const kick = Math.min(17.0, baseKick + 0.18 * Math.abs(vn));
       const dv = -(1 + eBumper) * vn + kick;
       ball.vx += nx * dv;
       ball.vz += nz * dv;
-      ball.vy = Math.max(ball.vy, 3.5);
+      ball.vy = Math.max(ball.vy, 1.8);
 
-      bmp.hitScale = 1.45;
+      bmp.hitScale = 1.28;
       bmp.flashTimer = 0.22;
 
       if (isPlayer) {
         if (!bmp.scoreCooldown || bmp.scoreCooldown <= 0) {
-          bmp.scoreCooldown = 0.22;
+          bmp.scoreCooldown = 0.25;
           totalBumperHits++;
           if (flipperActiveTimer > 0) {
             comboCount = Math.min(15, comboCount + 1);
             comboTimer = 3.0;
           }
-          feverLightBoost = Math.max(feverLightBoost, 16);
+          feverLightBoost = Math.max(feverLightBoost, 12);
           addPlayerPoints(14, bmp.x, bmp.z, false, true);
-          spawn3DBurst(bmp.x, 1.1, bmp.z, bmp.meshObj.baseColor, 12, true);
-          spawnShockwave3D(bmp.x, 0.85, bmp.z, bmp.meshObj.baseColor, 3.8, true);
-          addTrauma(0.30);
-          if (comboCount >= 3) {
-            hitStopTimer = Math.max(hitStopTimer, 0.024);
-          }
+          spawn3DBurst(bmp.x, 1.1, bmp.z, bmp.meshObj.baseColor, 8, true);
+          spawnShockwave3D(bmp.x, 0.85, bmp.z, bmp.meshObj.baseColor, 3.2, true);
           if (comboCount >= 5) {
             spawnFlyingStarCoins(bmp.x, 1.35, bmp.z, 1);
           }
@@ -3194,7 +3171,7 @@ function stepSingleBallPhysics(ball, isPlayer, dt, timeSec) {
     }
   });
 
-  // 6. Slingshot Kickers Collision (reflect(v, n_contact) + n_sling * kick with 0.15s scoreCooldown)
+  // 6. Slingshot Kickers Collision (reflect(v, n_contact) + n_sling * kick with 0.18s scoreCooldown)
   slingshots.forEach((sl) => {
     const dx = ball.x - sl.x;
     const dz = ball.z - sl.z;
@@ -3207,22 +3184,21 @@ function stepSingleBallPhysics(ball, isPlayer, dt, timeSec) {
       ball.z = sl.z + nz * (minDist + 0.05);
 
       const vn = Math.min(0, ball.vx * nx + ball.vz * nz);
-      const eSling = 0.65;
+      const eSling = 0.55;
       let rvx = ball.vx - (1 + eSling) * vn * nx;
       let rvz = ball.vz - (1 + eSling) * vn * nz;
 
       if (!sl.scoreCooldown || sl.scoreCooldown <= 0) {
-        sl.scoreCooldown = 0.15;
-        const slingKick = 17.0;
+        sl.scoreCooldown = 0.18;
+        const slingKick = 12.5;
         ball.vx = rvx + sl.normalX * slingKick;
         ball.vz = rvz + sl.normalZ * slingKick;
-        ball.vy = Math.max(ball.vy, 2.5);
-        sl.hitScale = 1.38;
+        ball.vy = Math.max(ball.vy, 1.5);
+        sl.hitScale = 1.25;
         if (isPlayer) {
           addPlayerPoints(12, sl.x, sl.z, false, true);
-          spawn3DBurst(sl.x, 0.9, sl.z, sl.color, 10, true);
-          spawnShockwave3D(sl.x, 0.65, sl.z, sl.color, 3.0, true);
-          addTrauma(0.22);
+          spawn3DBurst(sl.x, 0.9, sl.z, sl.color, 7, true);
+          spawnShockwave3D(sl.x, 0.65, sl.z, sl.color, 2.6, true);
           playFlipperSnapSfx(sl.x < 0);
         }
       } else {
@@ -3453,10 +3429,7 @@ function updateGame3D(dt, timeSec) {
   }
 
   if (hitStopTimer > 0) {
-    hitStopTimer = Math.max(0, hitStopTimer - dt);
-    const mainBall = playerBalls[0] || { x: 0, z: 2 };
-    updateCameraFraming(dt, mainBall.x, mainBall.z, timeSec);
-    return;
+    hitStopTimer = 0;
   }
 
   // Update Timers & Cooldowns
@@ -3485,12 +3458,12 @@ function updateGame3D(dt, timeSec) {
     cooldownChanged = true;
   }
 
-  // 3D Table Tilt Quake Cabinet Rock & Hop Animation (tableGroup.rotation.z & position.y)
+  // Subtle 3D Table Tilt Quake Cabinet Nudge (gentle, zero disorienting roll)
   if (tableQuakeAnimTimer > 0) {
     tableQuakeAnimTimer = Math.max(0, tableQuakeAnimTimer - dt);
     const tQ = QUAKE_ACTIVE_DURATION - tableQuakeAnimTimer;
-    tableGroup.rotation.z = 0.06 * Math.exp(-6.0 * tQ) * Math.sin(38.0 * tQ);
-    tableGroup.position.y = 0.25 * Math.exp(-7.0 * tQ) * Math.abs(Math.sin(28.0 * tQ));
+    tableGroup.rotation.z = 0.012 * Math.exp(-8.0 * tQ) * Math.sin(24.0 * tQ);
+    tableGroup.position.y = 0.06 * Math.exp(-8.0 * tQ) * Math.abs(Math.sin(20.0 * tQ));
     cooldownChanged = true;
     if (tableQuakeAnimTimer === 0) {
       tableGroup.rotation.z = 0;
