@@ -1,0 +1,1659 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+img {
+  pointer-events: none;
+  -webkit-user-drag: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+button {
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+html,
+body {
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  background: #140b2e;
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+}
+
+#pinballApp {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+#webglCanvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+  cursor: pointer;
+}
+
+/* Fullscreen Visceral Bumper Pop, Multiball & Tilt Quake Overlays */
+.impact-flash-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 15;
+  transition: opacity 0.08s ease-out;
+}
+
+.impact-flash-overlay.bumper-pop {
+  opacity: 1;
+  background:
+    radial-gradient(circle at 50% 52%, rgba(255, 255, 255, 0.55) 0%, rgba(255, 213, 79, 0.42) 45%, rgba(255, 64, 129, 0.22) 100%);
+}
+
+.impact-flash-overlay.quake-boom {
+  opacity: 1;
+  background:
+    radial-gradient(circle at 50% 55%, rgba(255, 235, 59, 0.58) 0%, rgba(0, 229, 255, 0.48) 45%, rgba(213, 0, 249, 0.45) 100%);
+}
+
+.impact-badge-burst {
+  position: absolute;
+  top: 44%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(1.35) rotate(-8deg);
+  font-size: 92px;
+  filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.55));
+  pointer-events: none;
+  z-index: 26;
+  transition: transform 0.16s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.18s ease;
+}
+
+.impact-badge-burst.hidden {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.2);
+}
+
+/* Top Floating 3D Pinball Tournament Progress Bar & Star HUD */
+.race-topbar {
+  position: absolute;
+  top: calc(10px + env(safe-area-inset-top, 0px));
+  left: calc(14px + env(safe-area-inset-left, 0px));
+  right: calc(14px + env(safe-area-inset-right, 0px));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  pointer-events: none;
+  z-index: 22;
+}
+
+.top-left-cluster {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  pointer-events: auto;
+  flex-shrink: 0;
+}
+
+.driver-chip {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #fff9c4, #ffb300);
+  padding: 4px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.4), inset 0 2px 6px rgba(255, 255, 255, 0.85);
+  pointer-events: auto;
+  flex-shrink: 0;
+}
+
+.driver-chip img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
+.cup-badge {
+  position: absolute;
+  bottom: -4px;
+  right: -6px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2.5px solid #ffb300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+}
+
+.map-toggle-btn {
+  display: none;
+}
+
+/* Center Tournament Score Progress & Distinct Flame Fever Gauge */
+.track-progress-shell {
+  flex: 1;
+  min-width: 100px;
+  max-width: 620px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+  border: 4px solid #ffffff;
+  border-radius: 30px;
+  padding: 12px 24px 9px;
+  box-shadow: 0 12px 28px rgba(15, 25, 65, 0.35);
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.track-progress-rail {
+  position: relative;
+  width: 100%;
+  height: 16px;
+  background: #e1f5fe;
+  border-radius: 999px;
+  box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.18);
+}
+
+.track-progress-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #00e5ff, #00e676, #ffea00, #ff4081, #d500f9);
+  transition: width 0.08s linear;
+}
+
+.track-finish-flag {
+  position: absolute;
+  right: -12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 22px;
+}
+
+.kart-marker {
+  position: absolute;
+  top: 50%;
+  left: 0%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  transition: left 0.08s linear;
+}
+
+/* Distinct +/-6px vertical lanes so rival markers never fully cover each other */
+.rival-marker {
+  width: 26px;
+  height: 26px;
+  border: 2px solid #ffffff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.32);
+  z-index: 2;
+  opacity: 0.9;
+}
+
+.rival-marker.lane-up-6 {
+  margin-top: -6px;
+}
+
+.rival-marker.lane-down-6 {
+  margin-top: 6px;
+}
+
+.rival-marker.lane-up-4 {
+  margin-top: -4px;
+}
+
+.rival-marker.lane-down-4 {
+  margin-top: 4px;
+}
+
+.rival-marker img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.catchup-arrow {
+  display: none;
+  position: absolute;
+  top: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 14px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.45));
+  animation: catchupBounce 0.55s ease-in-out infinite alternate;
+}
+
+.rival-marker.catchup-target {
+  border-color: #ffb300;
+  box-shadow: 0 0 12px #ffd54f;
+  z-index: 3;
+}
+
+.rival-marker.catchup-target .catchup-arrow {
+  display: block;
+}
+
+@keyframes catchupBounce {
+  from {
+    transform: translateX(-50%) translateY(0px);
+  }
+  to {
+    transform: translateX(-50%) translateY(-5px);
+  }
+}
+
+.player-marker {
+  width: 42px;
+  height: 42px;
+  border: 3.5px solid #ffd54f;
+  background: #ffffff;
+  box-shadow: 0 0 16px rgba(255, 213, 79, 0.95), 0 6px 16px rgba(255, 179, 0, 0.8);
+  z-index: 5;
+  animation: playerMarkerGlow 1.2s ease-in-out infinite alternate;
+  transition: left 0.08s linear, transform 0.16s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.16s ease, border-color 0.16s ease;
+}
+
+@keyframes playerMarkerGlow {
+  from {
+    box-shadow: 0 0 10px rgba(255, 234, 0, 0.85), 0 4px 12px rgba(255, 145, 0, 0.7);
+  }
+  to {
+    box-shadow: 0 0 22px rgba(255, 234, 0, 1), 0 0 8px #ffffff;
+  }
+}
+
+.player-marker.marker-bump {
+  transform: translate(-50%, -50%) scale(1.38);
+  box-shadow: 0 0 26px #ffea00, 0 8px 20px rgba(255, 179, 0, 0.95);
+  border-color: #ffffff;
+}
+
+.player-marker img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.marker-pointer {
+  position: absolute;
+  top: -19px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 14px;
+  line-height: 1;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+  animation: pointerBob 0.7s ease-in-out infinite alternate;
+}
+
+@keyframes pointerBob {
+  from {
+    transform: translateX(-50%) translateY(-2px);
+  }
+  to {
+    transform: translateX(-50%) translateY(2px);
+  }
+}
+
+.marker-crown {
+  position: absolute;
+  bottom: -8px;
+  right: -8px;
+  font-size: 15px;
+}
+
+/* Distinct Flame-Coloured Fever Bar + >= 22px Rainbow Icon */
+.fever-meter-rail {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 2px;
+}
+
+.fever-icon {
+  font-size: 23px;
+  line-height: 1;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle, #fff8e1, #ffd54f);
+  border: 2px solid #ffb300;
+  box-shadow: 0 2px 8px rgba(255, 145, 0, 0.4);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.fever-icon.fever-rainbow-ready {
+  animation: feverIconSparkle 0.55s ease-in-out infinite alternate;
+  box-shadow: 0 0 16px #ffea00, 0 0 24px #ff4081;
+  border-color: #ffffff;
+}
+
+@keyframes feverIconSparkle {
+  from {
+    transform: scale(1.04) rotate(-6deg);
+  }
+  to {
+    transform: scale(1.22) rotate(6deg);
+  }
+}
+
+.fever-status {
+  font-size: 19px;
+  line-height: 1;
+}
+
+.fever-bar-bg {
+  flex: 1;
+  height: 15px;
+  background: #2b193e;
+  border: 2px solid #ffab00;
+  border-radius: 999px;
+  overflow: hidden;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.45);
+}
+
+.fever-bar-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #ff3d00, #ff9100, #ffea00, #ffff8d, #ff6d00);
+  background-size: 200% 100%;
+  animation: rainbowShift 1.1s linear infinite;
+  transition: width 0.12s ease-out;
+}
+
+.fever-bar-fill.fever-active {
+  box-shadow: 0 0 16px rgba(255, 234, 0, 0.98);
+}
+
+@keyframes rainbowShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+/* Top Right Live Rank Medal, Star Trophies & Sound Button */
+.top-right-cluster {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  pointer-events: auto;
+  flex-shrink: 0;
+}
+
+.hud-rank-chip {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 3.5px solid #ffffff;
+  background: linear-gradient(145deg, #fff59d, #ffb300);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  box-shadow: 0 10px 24px rgba(15, 38, 74, 0.35);
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.22s ease, border-color 0.22s ease;
+}
+
+.hud-rank-chip.rank-1 {
+  background: linear-gradient(145deg, #fff59d, #ffb300);
+  border-color: #ffffff;
+  transform: scale(1.06);
+}
+
+.hud-rank-chip.rank-2 {
+  background: linear-gradient(145deg, #eceff1, #90a4ae);
+  border-color: #ffffff;
+}
+
+.hud-rank-chip.rank-3 {
+  background: linear-gradient(145deg, #ffe0b2, #fb8c00);
+  border-color: #ffffff;
+}
+
+/* Gentle amber catch-up cue during live play (no red crying chip!) */
+.hud-rank-chip.rank-catchup {
+  background: linear-gradient(145deg, #fff8e1, #ffb300);
+  border-color: #ffe082;
+  animation: catchupPulse 0.85s ease-in-out infinite alternate;
+}
+
+@keyframes catchupPulse {
+  from {
+    transform: translateY(1px) scale(0.98);
+  }
+  to {
+    transform: translateY(-2px) scale(1.06);
+  }
+}
+
+.star-trophy-row {
+  display: flex;
+  gap: 5px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  border: 3px solid #ffffff;
+  border-radius: 999px;
+  padding: 5px 11px;
+  box-shadow: 0 10px 24px rgba(15, 38, 74, 0.28);
+}
+
+.star-medal {
+  font-size: 24px;
+  filter: grayscale(0.85) opacity(0.35);
+  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.28s ease;
+}
+
+.star-medal.earned {
+  filter: drop-shadow(0 0 8px rgba(255, 193, 7, 0.85));
+  transform: scale(1.16) rotate(-8deg);
+}
+
+.glass-icon-btn {
+  position: relative;
+  overflow: hidden;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 3px solid #ffffff;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  font-size: 23px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(15, 38, 74, 0.3);
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.glass-icon-btn:hover {
+  transform: scale(1.08);
+}
+
+.glass-icon-btn:active {
+  transform: scale(0.92);
+}
+
+/* 0.6s Hold-to-Confirm Filling Ring on Replay & Mid-Game Table Switch */
+.holding-confirm::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: conic-gradient(
+    #00e676 var(--hold-pct, 0%),
+    rgba(255, 255, 255, 0.15) var(--hold-pct, 0%)
+  );
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0.85;
+}
+
+/* Left Vertical 8-Critter Pinball Table Switcher */
+.world-selector-rail {
+  position: absolute;
+  left: calc(14px + env(safe-area-inset-left, 0px));
+  top: 46%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.84);
+  backdrop-filter: blur(10px);
+  border: 3px solid #ffffff;
+  border-radius: 999px;
+  padding: 10px 7px;
+  box-shadow: 0 14px 32px rgba(15, 38, 74, 0.32);
+  z-index: 21;
+  transition: transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease;
+}
+
+.world-pill {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.92);
+  background: #ffffff;
+  padding: 2px;
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.24);
+}
+
+.world-pill img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
+.world-pill:hover {
+  transform: scale(1.1);
+}
+
+.world-pill.active {
+  transform: scale(1.14);
+  border-color: #ffb300;
+  background: linear-gradient(135deg, #ffd54f, #ff4081);
+  box-shadow: 0 0 20px rgba(255, 193, 7, 0.95);
+  cursor: default;
+}
+
+.world-pill.locked {
+  opacity: 0.58;
+  filter: grayscale(0.75);
+  border-color: #b0bec5;
+}
+
+/* >= 12px Readable Star Pips Around the Pill Rim */
+.world-pill-stars {
+  position: absolute;
+  bottom: -7px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.96);
+  border: 2px solid #ffb300;
+  border-radius: 999px;
+  padding: 0 4px;
+  font-size: 12px;
+  line-height: 15px;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  z-index: 4;
+}
+
+/* Floating Toast & Flipper Guide */
+.race-toast {
+  position: absolute;
+  top: 102px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.95);
+  border: 4px solid #ffb300;
+  border-radius: 999px;
+  padding: 8px 26px;
+  font-size: 32px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+  z-index: 25;
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+
+.race-toast.hidden {
+  opacity: 0;
+  transform: translateX(-50%) scale(0.85);
+}
+
+.steer-guide {
+  position: absolute;
+  bottom: 124px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.9);
+  border: 3px solid #ffd54f;
+  border-radius: 999px;
+  padding: 6px 22px;
+  font-size: 28px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+  z-index: 18;
+  animation: guidePulse 1.1s ease-in-out infinite alternate;
+  transition: opacity 0.3s ease;
+}
+
+.steer-guide.hidden {
+  opacity: 0;
+}
+
+@keyframes guidePulse {
+  from {
+    transform: translateX(-50%) translateY(0px) scale(1);
+  }
+  to {
+    transform: translateX(-50%) translateY(-8px) scale(1.06);
+  }
+}
+
+/* Bottom Two-Thumb Arcade Cockpit: Giant Flippers in Bottom Corners, Power Pedals Centered */
+.arcade-cockpit {
+  position: absolute;
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  left: calc(14px + env(safe-area-inset-left, 0px));
+  right: calc(14px + env(safe-area-inset-right, 0px));
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  pointer-events: none;
+  z-index: 20;
+}
+
+.pedal-cluster {
+  display: flex;
+  align-items: center;
+  pointer-events: auto;
+}
+
+.left-thumb-zone {
+  justify-content: flex-start;
+}
+
+.center-power-pedals {
+  gap: 14px;
+  justify-content: center;
+  padding-bottom: 2px;
+}
+
+.right-thumb-zone {
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.arcade-pedal {
+  position: relative;
+  overflow: hidden;
+  border-radius: 26px;
+  border: 4px solid #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  touch-action: none;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.42), inset 0 4px 8px rgba(255, 255, 255, 0.65);
+  transition: transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.14s ease, filter 0.14s ease, border-color 0.14s ease;
+}
+
+/* Giant Corner Flipper Buttons: clamp(76px, 22vmin, 108px) (>= 80px on phones!) */
+.flipper-left-pedal,
+.flipper-right-pedal {
+  width: clamp(80px, 22vmin, 108px);
+  height: clamp(80px, 22vmin, 108px);
+  border-radius: 30px;
+  font-size: clamp(36px, 9vmin, 48px);
+}
+
+.flipper-left-pedal {
+  background: linear-gradient(145deg, #ff4081, #c51162);
+}
+
+.flipper-right-pedal {
+  background: linear-gradient(145deg, #00e5ff, #0091ea);
+}
+
+/* Spring Plunger Button Above Right Flipper */
+.plunger-pedal {
+  width: clamp(62px, 15vmin, 76px);
+  height: clamp(62px, 15vmin, 76px);
+  border-radius: 50%;
+  font-size: clamp(28px, 7vmin, 36px);
+  background: linear-gradient(145deg, #ffd54f, #ff6f00);
+}
+
+/* Center 3 Power Pedals: >= 60px with >= 12px gaps */
+.power-pedal {
+  width: clamp(60px, 15.5vmin, 74px);
+  height: clamp(60px, 15.5vmin, 74px);
+  border-radius: 22px;
+  font-size: clamp(28px, 7vmin, 36px);
+}
+
+.arcade-pedal:hover {
+  transform: translateY(-3px) scale(1.05);
+}
+
+.arcade-pedal:active,
+.arcade-pedal.pedal-pressed {
+  transform: translateY(3px) scale(0.93);
+}
+
+.pedal-magnet {
+  background: linear-gradient(145deg, #b388ff, #6200ea);
+}
+
+.pedal-multiball {
+  background: linear-gradient(145deg, #69f0ae, #00c853);
+}
+
+.pedal-quake {
+  background: linear-gradient(145deg, #ff6e40, #dd2c00);
+}
+
+.arcade-pedal.active-boost {
+  box-shadow: 0 0 28px #ffd54f, 0 12px 26px rgba(0, 0, 0, 0.4);
+  transform: scale(1.1);
+  border-color: #ffea00;
+}
+
+.arcade-pedal.active-boost::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: conic-gradient(
+    rgba(255, 234, 0, 0.85) var(--active-pct, 100%),
+    rgba(255, 255, 255, 0.12) var(--active-pct, 100%)
+  );
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+.arcade-pedal.active-boost:active,
+.arcade-pedal.active-boost.pedal-pressed {
+  transform: translateY(3px) scale(0.95);
+  box-shadow: 0 0 16px #ffd54f, 0 6px 14px rgba(0, 0, 0, 0.45);
+}
+
+/* Cooldown radial sweep overlay on Power Pedals */
+.arcade-pedal.on-cooldown {
+  filter: saturate(0.55) brightness(0.82);
+  cursor: not-allowed;
+}
+
+.arcade-pedal.on-cooldown::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: conic-gradient(
+    rgba(10, 12, 28, 0.72) var(--cd-pct, 0%),
+    transparent var(--cd-pct, 0%)
+  );
+  pointer-events: none;
+}
+
+/* Pedal Cooldown Ready Pop (scale 1.25 + golden sparkle) */
+.arcade-pedal.pedal-ready {
+  animation: pedalReadyPop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 0 32px #ffea00, 0 0 16px #ffffff;
+  border-color: #ffea00;
+}
+
+@keyframes pedalReadyPop {
+  0% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.26) rotate(-5deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+/* Pedal Cooldown Denied Wiggle + Red Flash (Visual Feedback with Sound Off!) */
+.arcade-pedal.pedal-denied {
+  animation: pedalDeniedWiggle 0.36s ease-in-out;
+  border-color: #ff1744 !important;
+  box-shadow: 0 0 24px rgba(255, 23, 68, 0.95) !important;
+  filter: none !important;
+}
+
+@keyframes pedalDeniedWiggle {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-7px) rotate(-6deg);
+  }
+  45% {
+    transform: translateX(7px) rotate(6deg);
+  }
+  70% {
+    transform: translateX(-5px) rotate(-4deg);
+  }
+}
+
+/* 3D Podium Celebration & Defeat Modals (100% Zero Text, Fits Every Screen!) */
+.podium-backdrop {
+  position: fixed;
+  inset: 0;
+  overflow-y: auto;
+  background: rgba(15, 22, 55, 0.64);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: safe center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 100;
+}
+
+.podium-backdrop.hidden {
+  display: none;
+}
+
+.podium-card {
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.97), rgba(225, 245, 254, 0.97));
+  border: 5px solid #ffb300;
+  border-radius: 40px;
+  padding: 22px 28px;
+  max-width: 560px;
+  width: 100%;
+  box-shadow: 0 26px 64px rgba(0, 0, 0, 0.55);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.podium-card.lose-card {
+  background: linear-gradient(165deg, rgba(255, 235, 238, 0.97), rgba(236, 239, 241, 0.97));
+  border-color: #e53935;
+  box-shadow: 0 26px 64px rgba(183, 28, 28, 0.55);
+}
+
+.podium-sparkles {
+  font-size: 30px;
+  letter-spacing: 4px;
+}
+
+.podium-hero {
+  position: relative;
+  width: 124px;
+  height: 124px;
+}
+
+.podium-hero img {
+  width: 124px;
+  height: 124px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 6px solid #ffb300;
+  box-shadow: 0 12px 32px rgba(255, 179, 0, 0.65);
+}
+
+.podium-card.lose-card .podium-hero img {
+  border-color: #e53935;
+  filter: saturate(0.72);
+  box-shadow: 0 12px 28px rgba(229, 57, 53, 0.45);
+}
+
+.podium-cup-badge {
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  font-size: 36px;
+}
+
+.podium-medal-badge {
+  position: absolute;
+  bottom: -8px;
+  right: -8px;
+  font-size: 42px;
+}
+
+.podium-stars {
+  display: flex;
+  gap: 14px;
+}
+
+.podium-star {
+  width: 62px;
+  height: 62px;
+  border-radius: 20px;
+  background: rgba(0, 0, 0, 0.06);
+  border: 3px dashed rgba(0, 0, 0, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  filter: grayscale(0.95) opacity(0.28);
+  transition: transform 0.25s ease;
+}
+
+.podium-star.earned {
+  background: radial-gradient(circle, #fff8e1, #ffe082);
+  border: 3px solid #ffb300;
+  filter: none;
+  box-shadow: 0 8px 22px rgba(255, 179, 0, 0.55);
+  transform: scale(1.06);
+}
+
+/* 5-Critter Full Tournament Standings Row */
+.podium-standings-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 18px 8px 8px;
+  background: rgba(15, 38, 74, 0.06);
+  border-radius: 26px;
+}
+
+.standing-slot {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  padding: 8px 6px 6px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.88);
+  border: 2.5px solid #cfd8dc;
+  flex: 1 1 0;
+  min-width: 0;
+  transition: transform 0.2s ease;
+}
+
+.standing-slot.rank-top3 {
+  border-color: #ffb300;
+  background: linear-gradient(180deg, #ffffff, #fff8e1);
+}
+
+/* Stepped Top-3 Podium Pedestal Heights (1st > 2nd > 3rd > 4th/5th Out-of-Podium) */
+.standing-slot.rank-1 {
+  padding-bottom: 18px;
+  border-color: #ffb300;
+  background: linear-gradient(180deg, #fffde7, #ffe082);
+  box-shadow: 0 6px 16px rgba(255, 179, 0, 0.35);
+}
+
+.standing-slot.rank-2 {
+  padding-bottom: 12px;
+  border-color: #90a4ae;
+  background: linear-gradient(180deg, #ffffff, #eceff1);
+}
+
+.standing-slot.rank-3 {
+  padding-bottom: 8px;
+  border-color: #ffb74d;
+  background: linear-gradient(180deg, #fff8e1, #ffe0b2);
+}
+
+.standing-slot.rank-out {
+  padding-bottom: 4px;
+  opacity: 0.72;
+  border-style: dashed;
+  border-color: #ef9a9a;
+  background: rgba(255, 235, 238, 0.68);
+}
+
+.standing-slot.rank-4 {
+  margin-left: 4px;
+}
+
+.standing-slot.is-player {
+  transform: translateY(-6px) scale(1.06);
+  border: 3.5px solid #00c853;
+  box-shadow: 0 10px 24px rgba(0, 200, 83, 0.45);
+  opacity: 1;
+  z-index: 2;
+}
+
+.standing-slot.is-player.rank-out {
+  border-color: #d50000;
+  box-shadow: 0 10px 24px rgba(213, 0, 0, 0.45);
+}
+
+.standing-you-crown {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 18px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.standing-medal {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.standing-avatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2.5px solid #ffb300;
+}
+
+.standing-slot.rank-out .standing-avatar {
+  border-color: #e57373;
+  filter: grayscale(0.45);
+}
+
+.standing-stars {
+  font-size: 12px;
+  line-height: 1.1;
+  min-height: 14px;
+}
+
+.podium-actions {
+  display: flex;
+  gap: 22px;
+}
+
+.podium-btn {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 4px solid #ffffff;
+  font-size: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.podium-btn.hidden {
+  display: none;
+}
+
+.podium-btn:hover {
+  transform: scale(1.12);
+}
+
+.podium-btn.replay {
+  background: linear-gradient(135deg, #ffa726, #fb8c00);
+}
+
+/* Prominent Pulsing Retry Call-to-Action on 4th/5th-Place (0⭐) Sad Defeat Modal */
+.podium-card.lose-card .podium-btn.replay {
+  animation: retryPulseBounce 1.05s ease-in-out infinite alternate;
+  box-shadow: 0 0 26px rgba(255, 152, 0, 0.85), 0 10px 24px rgba(0, 0, 0, 0.38);
+}
+
+@keyframes retryPulseBounce {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.14);
+  }
+}
+
+.podium-btn.next {
+  background: linear-gradient(135deg, #29b6f6, #0288d1);
+}
+
+.finale-card {
+  max-width: 600px;
+}
+
+.finale-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  width: 100%;
+}
+
+.finale-tile {
+  background: #ffffff;
+  border: 3px solid #ffb300;
+  border-radius: 20px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.finale-tile img {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #29b6f6;
+}
+
+.finale-tile span {
+  font-size: 15px;
+}
+
+/* Tablet & Narrow Desktop Layout */
+@media (max-width: 820px) {
+  .race-topbar {
+    top: calc(8px + env(safe-area-inset-top, 0px));
+    left: calc(10px + env(safe-area-inset-left, 0px));
+    right: calc(10px + env(safe-area-inset-right, 0px));
+    gap: 8px;
+  }
+  .driver-chip {
+    width: 48px;
+    height: 48px;
+  }
+  .cup-badge {
+    width: 22px;
+    height: 22px;
+    font-size: 13px;
+  }
+  .track-progress-shell {
+    padding: 9px 14px 7px;
+    gap: 8px;
+  }
+  .hud-rank-chip {
+    width: 42px;
+    height: 42px;
+    font-size: 22px;
+  }
+  .star-trophy-row {
+    padding: 4px 8px;
+    gap: 4px;
+  }
+  .star-medal {
+    font-size: 18px;
+  }
+  .glass-icon-btn {
+    width: 42px;
+    height: 42px;
+    font-size: 20px;
+  }
+  .world-selector-rail {
+    left: calc(8px + env(safe-area-inset-left, 0px));
+    padding: 8px 5px;
+    gap: 6px;
+  }
+  .world-pill {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+/* Phone Portrait Layout (e.g., 390x844) — Giant >=80px Flippers, >=60px Pedals, Readable Gauges & Podium */
+@media (max-width: 520px) {
+  .race-topbar {
+    top: calc(6px + env(safe-area-inset-top, 0px));
+    left: calc(6px + env(safe-area-inset-left, 0px));
+    right: calc(6px + env(safe-area-inset-right, 0px));
+    gap: 5px;
+  }
+  .top-left-cluster {
+    gap: 5px;
+  }
+  .driver-chip {
+    width: 40px;
+    height: 40px;
+    padding: 2px;
+  }
+  .cup-badge {
+    width: 18px;
+    height: 18px;
+    font-size: 11px;
+    bottom: -2px;
+    right: -3px;
+  }
+  .track-progress-shell {
+    padding: 8px 12px 6px;
+    border-width: 2.5px;
+    border-radius: 20px;
+    gap: 8px;
+  }
+  .track-progress-rail {
+    height: 13px;
+  }
+  .rival-marker {
+    width: 22px;
+    height: 22px;
+  }
+  .player-marker {
+    width: 35px;
+    height: 35px;
+    border-width: 2.5px;
+  }
+  .marker-pointer {
+    top: -16px;
+    font-size: 12px;
+  }
+  .marker-crown {
+    font-size: 12px;
+    bottom: -6px;
+    right: -6px;
+  }
+  .track-finish-flag {
+    font-size: 15px;
+    right: -8px;
+  }
+  .fever-meter-rail {
+    gap: 6px;
+  }
+  .fever-icon {
+    font-size: 19px;
+    width: 24px;
+    height: 24px;
+  }
+  .fever-status {
+    font-size: 15px;
+  }
+  .fever-bar-bg {
+    height: 13px;
+  }
+  .top-right-cluster {
+    gap: 5px;
+  }
+  .hud-rank-chip {
+    width: 36px;
+    height: 36px;
+    font-size: 19px;
+    border-width: 2.5px;
+  }
+  .star-trophy-row {
+    padding: 3px 6px;
+    gap: 2px;
+    border-width: 2px;
+  }
+  .star-medal {
+    font-size: 15px;
+  }
+  .glass-icon-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 17px;
+    border-width: 2px;
+  }
+  .map-toggle-btn {
+    display: flex;
+  }
+  /* Tuck Table Selector Rail into 🗺️ Drawer on Portrait Phones so 3D Cabinet Left Rail is 100% Unobstructed! */
+  .world-selector-rail {
+    left: calc(8px + env(safe-area-inset-left, 0px));
+    top: 56px;
+    transform: translateY(-12px) scale(0.9);
+    opacity: 0;
+    pointer-events: none;
+    display: grid;
+    grid-template-columns: repeat(4, 38px);
+    padding: 8px;
+    gap: 6px;
+    border-radius: 22px;
+    border-width: 2.5px;
+  }
+  .world-selector-rail.drawer-open {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .world-pill {
+    width: 38px;
+    height: 38px;
+    border-width: 2px;
+  }
+  .world-pill-stars {
+    font-size: 10px;
+    line-height: 12px;
+    padding: 0 3px;
+    bottom: -5px;
+  }
+  .arcade-cockpit {
+    left: calc(8px + env(safe-area-inset-left, 0px));
+    right: calc(8px + env(safe-area-inset-right, 0px));
+    bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+  }
+  .flipper-left-pedal,
+  .flipper-right-pedal {
+    width: 82px;
+    height: 82px;
+    border-radius: 24px;
+    font-size: 36px;
+  }
+  .plunger-pedal {
+    width: 58px;
+    height: 58px;
+    font-size: 26px;
+  }
+  .center-power-pedals {
+    gap: 10px;
+  }
+  .power-pedal {
+    width: 60px;
+    height: 60px;
+    border-radius: 18px;
+    font-size: 26px;
+  }
+  .steer-guide {
+    bottom: 102px;
+    font-size: 20px;
+    padding: 4px 14px;
+  }
+  /* Phone Portrait Podium & Finale Fitting */
+  .podium-backdrop {
+    padding: 10px;
+  }
+  .podium-card {
+    padding: 16px 12px;
+    gap: 10px;
+    border-radius: 28px;
+  }
+  .podium-hero {
+    width: 96px;
+    height: 96px;
+  }
+  .podium-hero img {
+    width: 96px;
+    height: 96px;
+  }
+  .podium-star {
+    width: 52px;
+    height: 52px;
+    font-size: 30px;
+  }
+  .podium-standings-row {
+    padding: 16px 4px 8px;
+    gap: 4px;
+  }
+  .standing-slot {
+    min-width: 0;
+    flex: 1 1 0;
+    padding: 6px 2px;
+    border-radius: 14px;
+  }
+  .standing-slot.rank-1 {
+    padding-bottom: 14px;
+  }
+  .standing-slot.rank-2 {
+    padding-bottom: 10px;
+  }
+  .standing-slot.rank-3 {
+    padding-bottom: 6px;
+  }
+  .standing-slot.rank-out {
+    padding-bottom: 3px;
+  }
+  .standing-avatar {
+    width: 38px;
+    height: 38px;
+  }
+  .standing-medal {
+    font-size: 18px;
+  }
+  .standing-stars {
+    font-size: 11px;
+  }
+  .podium-btn {
+    width: 68px;
+    height: 68px;
+    font-size: 32px;
+  }
+  .finale-grid {
+    grid-template-columns: repeat(auto-fit, minmax(64px, 1fr));
+    gap: 8px;
+  }
+  .finale-tile {
+    padding: 6px 4px;
+    border-radius: 14px;
+  }
+  .finale-tile img {
+    width: 48px;
+    height: 48px;
+  }
+  .finale-tile span {
+    font-size: 11px;
+  }
+}
+
+/* Phone Landscape Layout (e.g., 844x390) — 2-Column Podium <= 330px & Tucked Table Drawer Behind 🗺️ */
+@media (max-height: 500px) {
+  .race-topbar {
+    top: calc(6px + env(safe-area-inset-top, 0px));
+    left: calc(10px + env(safe-area-inset-left, 0px));
+    right: calc(10px + env(safe-area-inset-right, 0px));
+    gap: 8px;
+  }
+  .driver-chip {
+    width: 42px;
+    height: 42px;
+    padding: 2px;
+  }
+  .cup-badge {
+    width: 18px;
+    height: 18px;
+    font-size: 11px;
+  }
+  .map-toggle-btn {
+    display: flex;
+  }
+  .track-progress-shell {
+    padding: 6px 16px 5px;
+    border-width: 2.5px;
+    gap: 6px;
+  }
+  .track-progress-rail {
+    height: 12px;
+  }
+  .player-marker {
+    width: 34px;
+    height: 34px;
+  }
+  .fever-icon {
+    font-size: 18px;
+    width: 22px;
+    height: 22px;
+  }
+  .fever-bar-bg {
+    height: 12px;
+  }
+  .hud-rank-chip {
+    width: 38px;
+    height: 38px;
+    font-size: 20px;
+  }
+  .star-trophy-row {
+    padding: 3px 8px;
+    gap: 3px;
+  }
+  .star-medal {
+    font-size: 16px;
+  }
+  .glass-icon-btn {
+    width: 38px;
+    height: 38px;
+    font-size: 18px;
+  }
+  /* Tuck Table Selector Rail Behind 🗺️ Button in Landscape so Left Thumb Zone is 100% Clear! */
+  .world-selector-rail {
+    left: calc(10px + env(safe-area-inset-left, 0px));
+    top: 56px;
+    transform: translateY(-12px) scale(0.9);
+    opacity: 0;
+    pointer-events: none;
+    display: grid;
+    grid-template-columns: repeat(4, 38px);
+    gap: 6px;
+    padding: 8px;
+    border-radius: 22px;
+    border-width: 2.5px;
+  }
+  .world-selector-rail.drawer-open {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .world-pill {
+    width: 38px;
+    height: 38px;
+    border-width: 2px;
+  }
+  .world-pill-stars {
+    font-size: 10px;
+    line-height: 12px;
+    padding: 0 3px;
+  }
+  .arcade-cockpit {
+    left: calc(12px + env(safe-area-inset-left, 0px));
+    right: calc(12px + env(safe-area-inset-right, 0px));
+    bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+  }
+  .flipper-left-pedal,
+  .flipper-right-pedal {
+    width: 82px;
+    height: 82px;
+    border-radius: 24px;
+    font-size: 36px;
+  }
+  .plunger-pedal {
+    width: 58px;
+    height: 58px;
+    font-size: 26px;
+  }
+  .center-power-pedals {
+    gap: 12px;
+  }
+  .power-pedal {
+    width: 60px;
+    height: 60px;
+    border-radius: 18px;
+    font-size: 26px;
+  }
+  .steer-guide {
+    bottom: 80px;
+    font-size: 20px;
+    padding: 4px 14px;
+  }
+  /* 2-Column Podium Card at max-height: 500px (<= 330px tall, 100% on-screen buttons!) */
+  .podium-backdrop {
+    padding: 8px 12px;
+  }
+  #winPodiumCard {
+    display: grid;
+    grid-template-columns: 165px 1fr;
+    grid-template-areas:
+      "sparkles standings"
+      "hero standings"
+      "stars actions";
+    align-items: center;
+    column-gap: 16px;
+    row-gap: 6px;
+    padding: 12px 18px;
+    max-width: 620px;
+    max-height: 325px;
+    border-radius: 26px;
+  }
+  #winSparklesHeader {
+    grid-area: sparkles;
+    font-size: 20px;
+    letter-spacing: 2px;
+    text-align: center;
+  }
+  .podium-hero {
+    grid-area: hero;
+    width: 72px;
+    height: 72px;
+    justify-self: center;
+  }
+  .podium-hero img {
+    width: 72px;
+    height: 72px;
+    border-width: 4px;
+  }
+  .podium-cup-badge {
+    font-size: 22px;
+    top: -4px;
+    left: -4px;
+  }
+  .podium-medal-badge {
+    font-size: 26px;
+    bottom: -4px;
+    right: -4px;
+  }
+  .podium-stars {
+    grid-area: stars;
+    gap: 8px;
+    justify-self: center;
+  }
+  .podium-star {
+    width: 40px;
+    height: 40px;
+    font-size: 24px;
+    border-radius: 12px;
+  }
+  .podium-standings-row {
+    grid-area: standings;
+    padding: 12px 6px 4px;
+    gap: 6px;
+  }
+  .standing-slot {
+    min-width: 0;
+    flex: 1 1 0;
+    padding: 5px 3px 3px;
+  }
+  .standing-slot.rank-1 {
+    padding-bottom: 10px;
+  }
+  .standing-slot.rank-2 {
+    padding-bottom: 7px;
+  }
+  .standing-slot.rank-3 {
+    padding-bottom: 4px;
+  }
+  .standing-slot.rank-out {
+    padding-bottom: 2px;
+  }
+  .standing-avatar {
+    width: 36px;
+    height: 36px;
+  }
+  .standing-medal {
+    font-size: 17px;
+  }
+  .standing-stars {
+    font-size: 10px;
+  }
+  .podium-actions {
+    grid-area: actions;
+    justify-self: center;
+    gap: 18px;
+  }
+  .podium-btn {
+    width: 64px;
+    height: 64px;
+    font-size: 30px;
+  }
+  .finale-card {
+    padding: 10px 14px;
+    gap: 8px;
+    max-width: 640px;
+    max-height: 330px;
+  }
+  .finale-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+  }
+  .finale-tile {
+    flex-direction: row;
+    justify-content: center;
+    padding: 4px 6px;
+    border-radius: 14px;
+  }
+  .finale-tile img {
+    width: 38px;
+    height: 38px;
+  }
+  .finale-tile span {
+    font-size: 12px;
+  }
+}

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>🎰⚡🌈🏆</title>
+  <link rel="icon" type="image/jpeg" href="icons/dogday.jpg" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div id="pinballApp">
+    <!-- Fullscreen 3D Three.js WebGL Tilted Pinball Viewport -->
+    <canvas id="webglCanvas"></canvas>
+
+    <!-- Fullscreen Visceral Bumper Pop & Quake Impact Overlays (100% Zero Text) -->
+    <div id="impactFlashOverlay" class="impact-flash-overlay"></div>
+    <div id="impactBadgeBurst" class="impact-badge-burst hidden">💥</div>
+
+    <!-- Top Floating 3D Pinball Tournament Progress, Rainbow Fever & Star HUD (100% Zero Text) -->
+    <header class="race-topbar">
+      <!-- Left Cluster: Active Critter Chip + Landscape Table Drawer Button + Hold-to-Replay Button -->
+      <div class="top-left-cluster">
+        <div class="driver-chip">
+          <img id="hudDriverImg" src="icons/dogday.jpg" alt="" />
+          <span id="hudCupEmoji" class="cup-badge">☀️</span>
+        </div>
+        <button id="btnTableMapToggle" class="glass-icon-btn map-toggle-btn" aria-label="Tables">🗺️</button>
+        <button id="btnRestartTable" class="glass-icon-btn restart-hold-btn" aria-label="Replay">🔁</button>
+      </div>
+
+      <!-- 5-Critter Pinball Score Tournament Gauge + Flame Fever Meter -->
+      <div class="track-progress-shell">
+        <div class="track-progress-rail">
+          <div id="trackProgressFill" class="track-progress-fill"></div>
+          <span class="track-finish-flag">🏆</span>
+          <!-- 4 Rival Critter Score Markers in +/-6px Vertical Lanes -->
+          <div id="rivalMarker0" class="kart-marker rival-marker lane-up-6">
+            <img id="rivalMarkerImg0" src="icons/catnap.jpg" alt="" />
+            <span class="catchup-arrow">⬆️</span>
+          </div>
+          <div id="rivalMarker1" class="kart-marker rival-marker lane-down-6">
+            <img id="rivalMarkerImg1" src="icons/craftycorn.jpg" alt="" />
+            <span class="catchup-arrow">⬆️</span>
+          </div>
+          <div id="rivalMarker2" class="kart-marker rival-marker lane-up-4">
+            <img id="rivalMarkerImg2" src="icons/hoppy.jpg" alt="" />
+            <span class="catchup-arrow">⬆️</span>
+          </div>
+          <div id="rivalMarker3" class="kart-marker rival-marker lane-down-4">
+            <img id="rivalMarkerImg3" src="icons/picky.jpg" alt="" />
+            <span class="catchup-arrow">⬆️</span>
+          </div>
+          <!-- Player Score Marker (>=34px with Pulsing Glow Ring & Pointer) -->
+          <div id="playerMarker" class="kart-marker player-marker">
+            <span class="marker-pointer">👇</span>
+            <img id="playerMarkerImg" src="icons/dogday.jpg" alt="" />
+            <span class="marker-crown">🔮</span>
+          </div>
+        </div>
+        <!-- Distinct Flame-Gold Rainbow Fever Bar -->
+        <div class="fever-meter-rail">
+          <span id="feverRainbowIcon" class="fever-icon">🌈</span>
+          <div class="fever-bar-bg">
+            <div id="feverProgressFill" class="fever-bar-fill"></div>
+          </div>
+          <span id="feverStatusEmoji" class="fever-status">✨</span>
+        </div>
+      </div>
+
+      <!-- Live Rank Medal + 3 Star Trophies + Sound Toggle (Separated from Replay!) -->
+      <div class="top-right-cluster">
+        <div id="hudRankChip" class="hud-rank-chip rank-1">
+          <span id="hudRankEmoji">🥇</span>
+        </div>
+        <div class="star-trophy-row">
+          <div id="hudStar0" class="star-medal earned">⭐</div>
+          <div id="hudStar1" class="star-medal earned">⭐</div>
+          <div id="hudStar2" class="star-medal earned">⭐</div>
+        </div>
+        <button id="btnSoundToggle" class="glass-icon-btn" aria-label="Sound">🔊</button>
+      </div>
+    </header>
+
+    <!-- Left Floating Vertical 8-Critter 3D Pinball Table Selector (100% Zero Text) -->
+    <aside id="worldSelectorRail" class="world-selector-rail"></aside>
+
+    <!-- Center Floating Visual Toast & Animated Flipper Finger Guide (100% Zero Text) -->
+    <div id="raceToast" class="race-toast hidden">🌈⚡✨</div>
+    <div id="steerGuide" class="steer-guide">⬅️ 👆 ➡️</div>
+
+    <!-- Bottom Two-Thumb Arcade Cockpit: Left Flipper in Bottom-Left, 3 Power Pedals Centered, Right Flipper + Plunger in Bottom-Right -->
+    <footer class="arcade-cockpit">
+      <!-- Bottom-Left Thumb Zone: Giant Left Flipper -->
+      <div class="pedal-cluster left-thumb-zone">
+        <button id="btnFlipperLeft" class="arcade-pedal flipper-left-pedal" aria-label="Left Flipper">⬅️</button>
+      </div>
+
+      <!-- Center Row: 3 Pinball Power Pedals (Magnet, Multiball Fever, Table Tilt Quake) -->
+      <div class="pedal-cluster center-power-pedals">
+        <button id="btnPedalMagnet" class="arcade-pedal power-pedal pedal-magnet" aria-label="Magnet Vortex">🧲</button>
+        <button id="btnPedalMultiball" class="arcade-pedal power-pedal pedal-multiball" aria-label="Multiball Fever">⚡</button>
+        <button id="btnPedalTiltQuake" class="arcade-pedal power-pedal pedal-quake" aria-label="Table Tilt Quake">💥</button>
+      </div>
+
+      <!-- Bottom-Right Thumb Zone: Spring Plunger Above Giant Right Flipper -->
+      <div class="pedal-cluster right-thumb-zone">
+        <button id="btnPlungerLaunch" class="arcade-pedal plunger-pedal" aria-label="Plunger Launch">🚀</button>
+        <button id="btnFlipperRight" class="arcade-pedal flipper-right-pedal" aria-label="Right Flipper">➡️</button>
+      </div>
+    </footer>
+
+    <!-- 100% Zero-Text 3D Podium Ranking & Win/Lose Celebration Modal -->
+    <div id="winModal" class="podium-backdrop hidden" role="dialog" aria-modal="true">
+      <div id="winPodiumCard" class="podium-card">
+        <div id="winSparklesHeader" class="podium-sparkles">🎰 🏆 🌈 🏆 🎰</div>
+        <div class="podium-hero">
+          <img id="winDriverImg" src="icons/dogday.jpg" alt="" />
+          <span id="winCupBadge" class="podium-cup-badge">☀️</span>
+          <span id="winMedalBadge" class="podium-medal-badge">🥇</span>
+        </div>
+        <div class="podium-stars" id="winStarsRow">
+          <div class="podium-star earned">⭐</div>
+          <div class="podium-star earned">⭐</div>
+          <div class="podium-star earned">⭐</div>
+        </div>
+        <!-- 5-Critter Full Tournament Finishing Order Standings -->
+        <div id="podiumStandingsRow" class="podium-standings-row"></div>
+        <div class="podium-actions">
+          <button id="btnWinReplay" class="podium-btn replay" aria-label="Replay">🔁</button>
+          <button id="btnWinNext" class="podium-btn next" aria-label="Next Stage">▶️</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 100% Zero-Text All-8 Pinball Tables Grand Champion Modal -->
+    <div id="finaleModal" class="podium-backdrop hidden" role="dialog" aria-modal="true">
+      <div class="podium-card finale-card">
+        <div class="podium-sparkles">🌈 🏆 🔮 👑 🔮 🏆 🌈</div>
+        <div id="finaleGrid" class="finale-grid"></div>
+        <div class="podium-actions">
+          <button id="btnFinaleClose" class="podium-btn next" aria-label="Play Again">🎉</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/vendor/three.min.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
